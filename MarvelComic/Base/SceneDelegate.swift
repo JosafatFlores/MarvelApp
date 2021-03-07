@@ -16,6 +16,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+        
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            Sesion.instance.typeDevice = "phone"
+            Sesion.instance.navigationBarSize = 43
+            break
+        // It's an iPhone
+        case .pad:
+            Sesion.instance.typeDevice = "pad"
+            Sesion.instance.navigationBarSize = 50
+            break
+        case .unspecified:
+            Sesion.instance.typeDevice = "unspecified"
+            break
+        case .tv:
+            Sesion.instance.typeDevice = "tv"
+            break
+        case .carPlay:
+            Sesion.instance.typeDevice = "carplay"
+            break
+        case .mac:
+            Sesion.instance.typeDevice = "mac"
+        @unknown default:
+            Sesion.instance.typeDevice = "default"
+        }
+        
+        if #available(iOS 13.0, *) {
+            let window = UIApplication.shared.windows[0]
+            Sesion.instance.topPading = window.safeAreaInsets.top + Sesion.instance.navigationBarSize
+            Sesion.instance.bottomPadding = window.safeAreaInsets.bottom
+        }
+        
         guard let _ = (scene as? UIWindowScene) else { return }
     }
 
