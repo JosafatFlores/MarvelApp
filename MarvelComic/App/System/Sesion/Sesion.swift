@@ -17,6 +17,7 @@ class Sesion : NSObject {
     let publicKey: String  = "6292e36908d1ce6539ff43261f56e1d9"
     
     var offsetComics: Int = 0
+    var offsetCharacters: Int = 0
     
     var typeDevice: String = ""
     var navigationBarSize: CGFloat = 0

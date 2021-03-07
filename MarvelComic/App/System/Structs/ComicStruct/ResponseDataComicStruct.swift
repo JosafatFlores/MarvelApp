@@ -1,12 +1,12 @@
 //
-//  ResponseDataStruct.swift
+//  ResponseDataComicStruct.swift
 //  MarvelComic
 //
 //  Created by Test on 05/03/21.
 //
 
 import Foundation
-struct ResponseDataStruct: Codable {
+struct ResponseDataComicStruct: Codable {
     var offset: Int
     var limit: Int
     var total: Int

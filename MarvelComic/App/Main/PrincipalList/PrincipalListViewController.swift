@@ -9,7 +9,7 @@ import UIKit
 
 class PrincipalListViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource {
     
-    private var principalListPresenter: PrincipalListPresenter = PrincipalListPresenter(service: ComicConector())
+    private var principalListPresenter: PrincipalListPresenter = PrincipalListPresenter(comicServ: ComicConector(), charaterServ: CharacterConector())
     
     let nf = "Not found"
     
@@ -17,7 +17,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     var collectionCellSelected = 0
     
     var comicData: [ComicStruct] = []
-    
+    var characterData: [CharacterStruct] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,10 +43,18 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         principalListPresenter.getComics()
         
         
+        
     }
     
-    func reloadTable(data: [ComicStruct]){
+    func reloadTableComic(data: [ComicStruct]){
         comicData = data
+        DispatchQueue.main.async {
+            self.listTbl.reloadData()
+        }
+    }
+    
+    func reloadTableCharacter(data: [CharacterStruct]){
+        characterData = data
         DispatchQueue.main.async {
             self.listTbl.reloadData()
         }
@@ -93,7 +101,12 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var rows: Int = 0
         
-        rows = comicData.count
+        if collectionCellSelected == 0{
+            rows = comicData.count
+        }else  if collectionCellSelected == 1{
+            rows = characterData.count
+        }
+        
         return rows
     }
     
@@ -101,30 +114,46 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         
         let cell: ListTableViewCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ListTableViewCell
         
-        let comic: ComicStruct = comicData[indexPath.row] as ComicStruct
         
-        
-        cell.setImageImg(urlString: "\(comic.thumbnail?.path ?? "").\(comic.thumbnail?.extension ?? "")")
-        cell.setTitleLbl(titleLbl: comic.title ?? nf)
-        cell.setDescriptionLbl(descriptionLbl: comic.description ?? nf)
-        
-        for price in comic.prices ?? []{
-            let p: PriceStruct = price
+        if collectionCellSelected == 0{
+            let comic: ComicStruct = comicData[indexPath.row] as ComicStruct
             
-            if p.type == "printPrice"{
-                cell.setPriceLbl(priceLbl: "$\(String(p.price ?? 0))")
+            
+            cell.setImageImg(urlString: "\(comic.thumbnail?.path ?? "").\(comic.thumbnail?.extension ?? "")")
+            cell.setTitleLbl(titleLbl: comic.title ?? nf)
+            cell.setDescriptionLbl(descriptionLbl: comic.description ?? nf)
+            
+            for price in comic.prices ?? []{
+                let p: PriceStruct = price
+                
+                if p.type == "printPrice"{
+                    cell.setPriceLbl(priceLbl: "$\(String(p.price ?? 0))")
+                }
             }
+            
+            for date in comic.dates ?? []{
+                let d: DateStruct = date
+                
+                if d.type == "focDate"{
+                    cell.setDateLbl(dateLbl: d.date ?? nf)
+                }
+            }
+            
+            cell.createComicCell()
+        }else  if collectionCellSelected == 1{
+            let character: CharacterStruct = characterData[indexPath.row] as CharacterStruct
+            
+            cell.setImageImg(urlString: "\(character.thumbnail?.path ?? "").\(character.thumbnail?.extension ?? "")")
+            cell.setTitleLbl(titleLbl: character.name ?? nf)
+            cell.setComicsLbl(comicsLbl: String((character.comics?.returned) ?? 0))
+            cell.setSeriesLbl(seriesLbl: String((character.series?.returned) ?? 0))
+            cell.setEventsLbl(eventsLbl: String((character.events?.returned) ?? 0))
+            cell.setStoriesLbl(storiesLbl: String((character.stories?.returned) ?? 0))
+            cell.setModifiedLbl(modifiedLbl: character.modified ?? nf)
+            
+            cell.crateCharacterCell()
         }
         
-        for date in comic.dates ?? []{
-            let d: DateStruct = date
-            
-            if d.type == "focDate"{
-                cell.setDateLbl(dateLbl: d.date ?? nf)
-            }
-        }
-        
-        cell.createCell()
         return cell
     }
     
@@ -162,7 +191,17 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionCellSelected = indexPath.row
+        
         self.tabLayout.reloadData()
+        
+        if collectionCellSelected == 0 && comicData.count == 0{
+            principalListPresenter.getComics()
+        }else if collectionCellSelected == 1 && characterData.count == 0{
+            principalListPresenter.getCharacters()
+        }else{
+            self.listTbl.reloadData()
+        }
+        
     }
     
     

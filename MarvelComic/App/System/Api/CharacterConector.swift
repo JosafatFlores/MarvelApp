@@ -1,16 +1,16 @@
 //
-//  ComicConector.swift
+//  CharacterConector.swift
 //  MarvelComic
 //
-//  Created by Test on 05/03/21.
+//  Created by Test on 06/03/21.
 //
 
 import Foundation
-class ComicConector: NSObject {
+class CharacterConector: NSObject {
     
-    let subpath = "/comics"
+    let subpath = "/characters"
     
-    func getComics(_ resultData: @escaping ResultComicData){
+    func getCharacters(_ resultData: @escaping ResultCharacterData){
         
         var errorResponse: String = ""
         
@@ -20,7 +20,7 @@ class ComicConector: NSObject {
         apiPath += "?apikey=\(Sesion.instance.publicKey)"
         apiPath += "&ts=\(ts)"
         apiPath += "&hash=\(Encryptor().encryptorMD5(ts: ts))"
-        apiPath += "&offset=\(Sesion.instance.offsetComics)"
+        apiPath += "&offset=\(Sesion.instance.offsetCharacters)"
         
         print(apiPath)
         var request = URLRequest(url: URL(string: apiPath)!)
@@ -43,7 +43,7 @@ class ComicConector: NSObject {
                     let dataRecived:Data = (dataString?.data(using: String.Encoding.utf8.rawValue))!
                     
                     do{
-                        let responseData = try JSONDecoder().decode(ResponseComicStruct.self, from: dataRecived)
+                        let responseData = try JSONDecoder().decode(ResponseCharacterStruct.self, from: dataRecived)
                         
                         resultData(responseData.data.results, String(responseData.code))
                     }catch let jsonErr{
