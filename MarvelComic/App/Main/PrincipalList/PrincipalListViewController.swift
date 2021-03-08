@@ -31,16 +31,23 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         tabLayout.dataSource = self
         tabLayout.register(TabLayoutCollectionViewCell.self, forCellWithReuseIdentifier: "collectionCell")
         
-        listTbl.delegate = self
-        listTbl.dataSource = self
-        listTbl.layer.backgroundColor = UIColor.clear.cgColor
-        listTbl.backgroundColor = .clear
-        listTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
+        comicsTbl.delegate = self
+        comicsTbl.dataSource = self
+        comicsTbl.layer.backgroundColor = UIColor.clear.cgColor
+        comicsTbl.backgroundColor = .clear
+        comicsTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        charactersTbl.delegate = self
+        charactersTbl.dataSource = self
+        charactersTbl.layer.backgroundColor = UIColor.clear.cgColor
+        charactersTbl.backgroundColor = .clear
+        charactersTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
         
         createView()
         
         principalListPresenter.attachView(view: self)
         principalListPresenter.getComics()
+        principalListPresenter.getCharacters()
         
         
         
@@ -49,14 +56,14 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     func reloadTableComic(data: [ComicStruct]){
         comicData = data
         DispatchQueue.main.async {
-            self.listTbl.reloadData()
+            self.comicsTbl.reloadData()
         }
     }
     
     func reloadTableCharacter(data: [CharacterStruct]){
         characterData = data
         DispatchQueue.main.async {
-            self.listTbl.reloadData()
+            self.charactersTbl.reloadData()
         }
     }
     
@@ -76,7 +83,13 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         return collection
     }()
     
-    private let listTbl: UITableView = {
+    private let comicsTbl: UITableView = {
+        let table = UITableView()
+        table.translatesAutoresizingMaskIntoConstraints = false
+        return table
+    }()
+    
+    private let charactersTbl: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
@@ -84,29 +97,36 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     
     func createView(){
         view.addSubview(tabLayout)
-        view.addSubview(listTbl)
+        view.addSubview(comicsTbl)
+        view.addSubview(charactersTbl)
         
         tabLayout.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
         tabLayout.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         tabLayout.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         tabLayout.heightAnchor.constraint(equalToConstant:50).isActive = true
         
-        listTbl.topAnchor.constraint(equalTo: tabLayout.bottomAnchor).isActive = true
-        listTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        listTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        listTbl.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        comicsTbl.topAnchor.constraint(equalTo: tabLayout.bottomAnchor).isActive = true
+        comicsTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        comicsTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        comicsTbl.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+
+        charactersTbl.topAnchor.constraint(equalTo: tabLayout.bottomAnchor).isActive = true
+        charactersTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        charactersTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        charactersTbl.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        charactersTbl.isHidden = true
     }
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var rows: Int = 0
         
-        if collectionCellSelected == 0{
+        if tableView == comicsTbl{
             rows = comicData.count
-        }else  if collectionCellSelected == 1{
+        }else if tableView == charactersTbl{
             rows = characterData.count
         }
-        
+        print(rows)
         return rows
     }
     
@@ -115,7 +135,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         let cell: ListTableViewCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ListTableViewCell
         
         
-        if collectionCellSelected == 0{
+        if tableView == comicsTbl{
             let comic: ComicStruct = comicData[indexPath.row] as ComicStruct
             
             
@@ -140,7 +160,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             }
             
             cell.createComicCell()
-        }else  if collectionCellSelected == 1{
+        }else if tableView == charactersTbl{
             let character: CharacterStruct = characterData[indexPath.row] as CharacterStruct
             
             cell.setImageImg(urlString: "\(character.thumbnail?.path ?? "").\(character.thumbnail?.extension ?? "")")
@@ -164,7 +184,13 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         var size: CGFloat = 0
         
-        size = 210
+        if tableView == comicsTbl{
+            size = 210
+        }else if tableView == charactersTbl{
+            size = 180
+        }
+        
+        
         return size
     }
     
@@ -194,12 +220,13 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         
         self.tabLayout.reloadData()
         
-        if collectionCellSelected == 0 && comicData.count == 0{
-            principalListPresenter.getComics()
-        }else if collectionCellSelected == 1 && characterData.count == 0{
-            principalListPresenter.getCharacters()
-        }else{
-            self.listTbl.reloadData()
+        if collectionCellSelected == 0{
+            comicsTbl.isHidden = false
+            charactersTbl.isHidden = true
+            
+        }else if collectionCellSelected == 1{
+            comicsTbl.isHidden = true
+            charactersTbl.isHidden = false
         }
         
     }

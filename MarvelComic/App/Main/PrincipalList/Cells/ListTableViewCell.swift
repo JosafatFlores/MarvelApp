@@ -145,7 +145,7 @@ class ListTableViewCell: UITableViewCell {
         
         let stringformatter = DateFormatter()
         stringformatter.dateFormat = "yyyy-MM-dd"
-        print(dateLbl, date, stringformatter.string(from: date))
+        
         self.dateLbl.text = "FOC: \(stringformatter.string(from: date))"
     }
     
@@ -194,7 +194,6 @@ class ListTableViewCell: UITableViewCell {
             let stringformatter = DateFormatter()
             stringformatter.dateFormat = "yyyy-MM-dd"
             
-            print(modifiedLbl, date, stringformatter.string(from: date))
             
             self.modifiedLbl.text = "Modified: \(stringformatter.string(from: date))"
         }
@@ -223,7 +222,6 @@ class ListTableViewCell: UITableViewCell {
     
     
     func createComicCell(){
-        removeAllItems()
         
         self.addSubview(thumbnailImg)
         self.addSubview(titleLbl)
@@ -270,7 +268,6 @@ class ListTableViewCell: UITableViewCell {
     }
     
     func crateCharacterCell(){
-        removeAllItems()
         let width = self.frame.width - 160
         self.addSubview(thumbnailImg)
         self.addSubview(titleLbl)
@@ -326,20 +323,5 @@ class ListTableViewCell: UITableViewCell {
         IDLbl.leftAnchor.constraint(equalTo: thumbnailImg.rightAnchor, constant: 5).isActive = true
         IDLbl.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5).isActive = true
         IDLbl.heightAnchor.constraint(equalToConstant: 30).isActive = true
-    }
-    
-    func removeAllItems(){
-        thumbnailImg.removeFromSuperview()
-        titleLbl.removeFromSuperview()
-        descriptionLbl.removeFromSuperview()
-        priceLbl.removeFromSuperview()
-        dateLbl.removeFromSuperview()
-        resourceLbl.removeFromSuperview()
-        IDLbl.removeFromSuperview()
-        comicsLbl.removeFromSuperview()
-        seriesLbl.removeFromSuperview()
-        eventsLbl.removeFromSuperview()
-        storiesLbl.removeFromSuperview()
-        modifiedLbl.removeFromSuperview()
     }
 }
