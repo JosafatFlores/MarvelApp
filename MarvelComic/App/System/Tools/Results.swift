@@ -7,5 +7,5 @@
 
 import Foundation
 
-typealias ResultComicData = ([ComicStruct]?, String) -> Void
-typealias ResultCharacterData = ([CharacterStruct]?, String) -> Void
+typealias ResultComicData = (ResponseDataComicStruct?, String) -> Void
+typealias ResultCharacterData = (ResponseDataCharacterStruct?, String) -> Void

@@ -11,5 +11,5 @@ struct ResponseDataComicStruct: Codable {
     var limit: Int
     var total: Int
     var count: Int
-    var results: [ComicStruct]?
+    var results: [ComicStruct]
 }

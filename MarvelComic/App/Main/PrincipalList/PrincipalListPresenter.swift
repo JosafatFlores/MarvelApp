@@ -22,9 +22,9 @@ class PrincipalListPresenter: NSObject {
         principalListView = view
     }
     
-    func getComics(){
+    func getComics(offset: String){
         self.principalListView?.showedSpinner()
-        comicService?.getComics{ (data, message)  in
+        comicService?.getComics(offset: offset){ (data, message)  in
             self.principalListView?.removedSpinner()
             if message == "200"{
                 self.principalListView?.reloadTableComic(data: data!)
@@ -34,8 +34,8 @@ class PrincipalListPresenter: NSObject {
         }
     }
     
-    func getCharacters(){
-        characterService?.getCharacters{ (data, message)  in
+    func getCharacters(offset: String){
+        characterService?.getCharacters(offset: offset){ (data, message)  in
             if message == "200"{
                 self.principalListView?.reloadTableCharacter(data: data!)
             }else{

@@ -30,6 +30,7 @@ class ListTableViewCell: UITableViewCell {
     private let titleLbl: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "Marvel", size: 35)
+        label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -38,6 +39,7 @@ class ListTableViewCell: UITableViewCell {
     private let descriptionLbl: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -45,6 +47,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let priceLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -52,6 +55,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let dateLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -60,6 +64,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let comicsLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -67,6 +72,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let seriesLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -74,6 +80,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let eventsLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -81,6 +88,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let storiesLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -88,6 +96,7 @@ class ListTableViewCell: UITableViewCell {
     
     private let modifiedLbl: UILabel = {
         let label = UILabel()
+        label.textColor = .white
         label.font = UIFont(name: "Marvel", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

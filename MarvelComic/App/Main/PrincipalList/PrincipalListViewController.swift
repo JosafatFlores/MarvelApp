@@ -19,6 +19,15 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     var comicData: [ComicStruct] = []
     var characterData: [CharacterStruct] = []
     
+    var comicsOffset = 0
+    var characterOffset = 0
+    
+    var comicsLimit = 0
+    var charactersLimit = 0
+    
+    var comicsTotal = 0
+    var charactersTotal = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -34,34 +43,36 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         comicsTbl.delegate = self
         comicsTbl.dataSource = self
         comicsTbl.layer.backgroundColor = UIColor.clear.cgColor
-        comicsTbl.backgroundColor = .clear
+        comicsTbl.backgroundColor = .black
         comicsTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
         
         charactersTbl.delegate = self
         charactersTbl.dataSource = self
         charactersTbl.layer.backgroundColor = UIColor.clear.cgColor
-        charactersTbl.backgroundColor = .clear
+        charactersTbl.backgroundColor = .black
         charactersTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
         
         createView()
         
         principalListPresenter.attachView(view: self)
-        principalListPresenter.getComics()
-        principalListPresenter.getCharacters()
-        
-        
-        
+        principalListPresenter.getComics(offset: String(comicsOffset))
+        principalListPresenter.getCharacters(offset: String(characterOffset))
     }
     
-    func reloadTableComic(data: [ComicStruct]){
-        comicData = data
+    func reloadTableComic(data: ResponseDataComicStruct){
+        comicData = data.results
+        comicsLimit = data.limit
+        comicsTotal =  data.total
         DispatchQueue.main.async {
+            self.enabledButtons()
             self.comicsTbl.reloadData()
         }
     }
     
-    func reloadTableCharacter(data: [CharacterStruct]){
-        characterData = data
+    func reloadTableCharacter(data: ResponseDataCharacterStruct){
+        characterData = data.results
+        charactersLimit = data.limit
+        charactersTotal =  data.total
         DispatchQueue.main.async {
             self.charactersTbl.reloadData()
         }
@@ -95,10 +106,49 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         return table
     }()
     
+    private let bottonView:UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "red_226_54_54")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let reduceOffset:UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .black
+        button.setTitleColor( .white, for: .normal)
+        button.setTitle("< 20", for: .normal)
+        button.layer.cornerRadius = 7
+        button.addTarget(self, action:#selector(reduceOffset(sender:)), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let addOffset:UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .black
+        button.setTitleColor( .white, for: .normal)
+        button.setTitle("20 >", for: .normal)
+        button.layer.cornerRadius = 7
+        button.addTarget(self, action:#selector(addOffset(sender:)), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let counterLbl: UILabel = {
+       let label = UILabel()
+        label.textColor = .white
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     func createView(){
         view.addSubview(tabLayout)
         view.addSubview(comicsTbl)
         view.addSubview(charactersTbl)
+        view.addSubview(bottonView)
+        
         
         tabLayout.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
         tabLayout.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
@@ -108,15 +158,94 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         comicsTbl.topAnchor.constraint(equalTo: tabLayout.bottomAnchor).isActive = true
         comicsTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         comicsTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        comicsTbl.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        comicsTbl.bottomAnchor.constraint(equalTo: bottonView.topAnchor).isActive = true
 
         charactersTbl.topAnchor.constraint(equalTo: tabLayout.bottomAnchor).isActive = true
         charactersTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         charactersTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        charactersTbl.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        charactersTbl.bottomAnchor.constraint(equalTo: bottonView.topAnchor).isActive = true
         charactersTbl.isHidden = true
+        
+        bottonView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        bottonView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        bottonView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        bottonView.heightAnchor.constraint(equalToConstant: Sesion.instance.bottomPadding + 55).isActive = true
+        bottonView.backgroundColor = .red
+        
+        bottonView.addSubview(reduceOffset)
+        bottonView.addSubview(addOffset)
+        bottonView.addSubview(counterLbl)
+        
+        reduceOffset.topAnchor.constraint(equalTo: bottonView.topAnchor, constant: 5).isActive = true
+        reduceOffset.leftAnchor.constraint(equalTo: bottonView.leftAnchor, constant: 10).isActive = true
+        reduceOffset.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        reduceOffset.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        
+        addOffset.topAnchor.constraint(equalTo: bottonView.topAnchor, constant: 5).isActive = true
+        addOffset.rightAnchor.constraint(equalTo: bottonView.rightAnchor, constant:  -10).isActive = true
+        addOffset.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        addOffset.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        
+        counterLbl.topAnchor.constraint(equalTo: bottonView.topAnchor, constant: 5).isActive = true
+        counterLbl.leftAnchor.constraint(equalTo: reduceOffset.rightAnchor).isActive = true
+        counterLbl.rightAnchor.constraint(equalTo: addOffset.leftAnchor).isActive = true
+        counterLbl.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        enabledButtons()
+    }
+    @objc
+    func reduceOffset(sender: UIButton){
+        enabledButtons()
+        if collectionCellSelected == 0{
+            comicsOffset -= 20
+            principalListPresenter.getComics(offset: String(comicsOffset))
+        }else if collectionCellSelected == 1{
+            characterOffset -= 20
+            principalListPresenter.getCharacters(offset: String(characterOffset))
+        }
+        enabledButtons()
     }
     
+    @objc
+    func addOffset(sender: UIButton){
+        
+        if collectionCellSelected == 0{
+            comicsOffset += 20
+            principalListPresenter.getComics(offset: String(comicsOffset))
+        }else if collectionCellSelected == 1{
+            characterOffset += 20
+            principalListPresenter.getCharacters(offset: String(characterOffset))
+        }
+        enabledButtons()
+    }
+    
+    func enabledButtons(){
+        if collectionCellSelected == 0{
+            if comicsOffset == 0{
+                reduceOffset.isEnabled = false
+                reduceOffset.alpha = 0.5
+            }else if comicsOffset > (comicsTotal - 20){
+                addOffset.isEnabled = false
+                addOffset.alpha = 0.5
+            }else{
+                reduceOffset.isEnabled = true
+                reduceOffset.alpha = 1
+            }
+            
+            counterLbl.text = "\(comicsOffset + 20)/\(comicsTotal)"
+        }else if collectionCellSelected == 1{
+            if characterOffset == 0{
+                reduceOffset.isEnabled = false
+                reduceOffset.alpha = 0.5
+            }else if characterOffset > (charactersTotal - 20){
+                addOffset.isEnabled = false
+                addOffset.alpha = 0.5
+            }else {
+                reduceOffset.isEnabled = true
+                reduceOffset.alpha = 1
+            }
+            counterLbl.text = "\(characterOffset + 20)/\(charactersTotal)"
+        }
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var rows: Int = 0
@@ -126,7 +255,6 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         }else if tableView == charactersTbl{
             rows = characterData.count
         }
-        print(rows)
         return rows
     }
     
@@ -173,6 +301,8 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             
             cell.crateCharacterCell()
         }
+        
+        cell.backgroundColor = .clear
         
         return cell
     }
@@ -228,6 +358,8 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             comicsTbl.isHidden = true
             charactersTbl.isHidden = false
         }
+        enabledButtons()
+
         
     }
     

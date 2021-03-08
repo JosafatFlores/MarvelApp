@@ -10,7 +10,7 @@ class CharacterConector: NSObject {
     
     let subpath = "/characters"
     
-    func getCharacters(_ resultData: @escaping ResultCharacterData){
+    func getCharacters(offset: String, _ resultData: @escaping ResultCharacterData){
         
         var errorResponse: String = ""
         
@@ -20,7 +20,7 @@ class CharacterConector: NSObject {
         apiPath += "?apikey=\(Sesion.instance.publicKey)"
         apiPath += "&ts=\(ts)"
         apiPath += "&hash=\(Encryptor().encryptorMD5(ts: ts))"
-        apiPath += "&offset=\(Sesion.instance.offsetCharacters)"
+        apiPath += "&offset=\(offset)"
         
         print(apiPath)
         var request = URLRequest(url: URL(string: apiPath)!)
@@ -45,7 +45,7 @@ class CharacterConector: NSObject {
                     do{
                         let responseData = try JSONDecoder().decode(ResponseCharacterStruct.self, from: dataRecived)
                         
-                        resultData(responseData.data.results, String(responseData.code))
+                        resultData(responseData.data, String(responseData.code))
                     }catch let jsonErr{
                         print(jsonErr)
                         errorResponse = "error"
