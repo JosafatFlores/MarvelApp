@@ -146,16 +146,7 @@ class ListTableViewCell: UITableViewCell {
     }
     
     func setDateLbl(dateLbl: String){
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        let date = dateFormatter.date(from:dateLbl) ?? Date()
-        
-        let stringformatter = DateFormatter()
-        stringformatter.dateFormat = "yyyy-MM-dd"
-        
-        self.dateLbl.text = "FOC: \(stringformatter.string(from: date))"
+        self.dateLbl.text = "FOC: \(Formatter().dateReduceFormatter(date: dateLbl))"
     }
     
     func getDateLbl() ->String {
@@ -195,17 +186,7 @@ class ListTableViewCell: UITableViewCell {
     }
     
     func setModifiedLbl(modifiedLbl: String){
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        if let date = dateFormatter.date(from: modifiedLbl) {
-            let stringformatter = DateFormatter()
-            stringformatter.dateFormat = "yyyy-MM-dd"
-            
-            
-            self.modifiedLbl.text = "Modified: \(stringformatter.string(from: date))"
-        }
+        self.modifiedLbl.text = "Modified: \(Formatter().dateFormatter(date: modifiedLbl))"
     }
     
     func getModifiedLbl() ->String {

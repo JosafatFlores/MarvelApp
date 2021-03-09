@@ -28,6 +28,8 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     var comicsTotal = 0
     var charactersTotal = 0
     
+    var resourceURISelected: String = ""
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -77,6 +79,13 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             self.charactersTbl.reloadData()
         }
     }
+    
+    private let topView:UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "red_226_54_54")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     private let tabLayout: UICollectionView = {
         let layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
@@ -148,7 +157,12 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         view.addSubview(comicsTbl)
         view.addSubview(charactersTbl)
         view.addSubview(bottonView)
+        view.addSubview(topView)
         
+        topView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        topView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        topView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        topView.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading).isActive = true
         
         tabLayout.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
         tabLayout.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
@@ -287,6 +301,9 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
                 }
             }
             
+            cell.setIDLbl(IDLbl: String(comic.id ?? 0))
+            cell.setResourceLbl(resourceLbl: comic.resourceURI ?? "")
+            
             cell.createComicCell()
         }else if tableView == charactersTbl{
             let character: CharacterStruct = characterData[indexPath.row] as CharacterStruct
@@ -299,6 +316,9 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             cell.setStoriesLbl(storiesLbl: String((character.stories?.returned) ?? 0))
             cell.setModifiedLbl(modifiedLbl: character.modified ?? nf)
             
+            cell.setIDLbl(IDLbl: String(character.id))
+            cell.setResourceLbl(resourceLbl: character.resourceURI ?? "")
+            
             cell.crateCharacterCell()
         }
         
@@ -308,7 +328,14 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        let cell = tableView.cellForRow(at: indexPath) as! ListTableViewCell
+        resourceURISelected = cell.getResourceLbl()
+        if collectionCellSelected == 0{
+            resourceURISelected = cell.getResourceLbl()
+            self.performSegue(withIdentifier: "comicDetailSegue", sender: nil)
+        }else if collectionCellSelected == 1{
+            
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -319,11 +346,16 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         }else if tableView == charactersTbl{
             size = 180
         }
-        
-        
         return size
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if (segue.identifier == "comicDetailSegue") {
+            let vc = segue.destination as! ComicDetailViewController
+            vc.resourceURI = resourceURISelected
+        }
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return menu.count
