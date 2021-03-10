@@ -117,8 +117,6 @@ class CharacterDetailViewController: UIViewController, UICollectionViewDelegate,
         return label
     }()
     
-    
-    
     private let modifiedLbl: UILabel = {
         let label = UILabel()
         label.textColor = .white

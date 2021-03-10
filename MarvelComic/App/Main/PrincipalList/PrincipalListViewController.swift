@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PrincipalListViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource {
+class PrincipalListViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     
     private var principalListPresenter: PrincipalListPresenter = PrincipalListPresenter(comicServ: ComicConector(), charaterServ: CharacterConector())
     
@@ -29,12 +29,25 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     var charactersTotal = 0
     
     var resourceURISelected: String = ""
-        
+    
+    var filterComics: [FilterStruct] = []
+    var filterCharacters: [FilterStruct] = []
+    
+    var filterComicsSelected: String = ""
+    var filterCharactersSelected: String = ""
+    var filterComicsSelectedDescription: String = ""
+    var filterCharactersSelectedDescription: String = ""
+    
+    var hiddenGesture:UITapGestureRecognizer? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         menu.append("Comics")
         menu.append("Characters")
+        
+        filterComics = Filter().filterComic()
+        filterCharacters = Filter().filterCharacter()
         
         self.navigationController?.navigationBar.barTintColor = UIColor(named: "red_226_54_54")
         
@@ -54,11 +67,27 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         charactersTbl.backgroundColor = .black
         charactersTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
         
+        filtersTbl.delegate = self
+        filtersTbl.dataSource = self
+        filtersTbl.register(ListTableViewCell.self, forCellReuseIdentifier: "cell")
+        
         createView()
         
         principalListPresenter.attachView(view: self)
-        principalListPresenter.getComics(offset: String(comicsOffset))
-        principalListPresenter.getCharacters(offset: String(characterOffset))
+        principalListPresenter.getComics(offset: String(comicsOffset), filter: filterComicsSelected, textFilter: textFilterTxt.text ?? "")
+        principalListPresenter.getCharacters(offset: String(comicsOffset), filter: filterCharactersSelected, textFilter: textFilterTxt.text ?? "")
+        
+        filterTxt.delegate = self
+        textFilterTxt.delegate = self
+        
+        hiddenGesture = UITapGestureRecognizer(target: self, action: #selector(hidenControl(_:)))
+        self.view.addGestureRecognizer(hiddenGesture!)
+        hiddenGesture?.isEnabled = false
+    }
+    
+    @IBAction func hidenControl(_ sender: AnyObject) {
+        textFilterTxt.endEditing(true)
+        hiddenGesture?.isEnabled = false
     }
     
     func reloadTableComic(data: ResponseDataComicStruct){
@@ -85,6 +114,45 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         view.backgroundColor = UIColor(named: "red_226_54_54")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+    
+    private let filterTxt:UITextField = {
+       let textfield = UITextField()
+        textfield.textAlignment = .center
+        textfield.placeholder = "Filter"
+        textfield.backgroundColor = .white
+        textfield.layer.cornerRadius = 10
+        textfield.layer.borderWidth = 2
+        textfield.layer.borderColor = UIColor.black.cgColor
+        textfield.tag = 1
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        return textfield
+    }()
+    
+    private let textFilterTxt:UITextField = {
+       let textfield = UITextField()
+        textfield.textAlignment = .center
+        textfield.placeholder = "Search.."
+        textfield.backgroundColor = .white
+        textfield.layer.cornerRadius = 10
+        textfield.layer.borderWidth = 2
+        textfield.layer.borderColor = UIColor.black.cgColor
+        textfield.tag = 2
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        return textfield
+    }()
+    
+    private let findBtn: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "iconFinder"), for: .normal)
+        button.backgroundColor = .white
+        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        button.layer.cornerRadius = 22
+        button.layer.borderWidth = 2
+        button.layer.borderColor = UIColor.black.cgColor
+        button.addTarget(self, action:#selector(filterFind(sender:)), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let tabLayout: UICollectionView = {
@@ -145,14 +213,34 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     }()
     
     private let counterLbl: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
+    private let shadowView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        view.alpha = 0.7
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let filtersTbl:UITableView = {
+        let table = UITableView()
+        table.backgroundColor = .white
+        table.layer.cornerRadius = 10
+        table.translatesAutoresizingMaskIntoConstraints = false
+        return table
+    }()
+    
+    var tableTopConstraint = NSLayoutConstraint()
+    var tableHeightContraint = NSLayoutConstraint()
+    
     func createView(){
+        
         view.addSubview(tabLayout)
         view.addSubview(comicsTbl)
         view.addSubview(charactersTbl)
@@ -164,6 +252,25 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         topView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         topView.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading).isActive = true
         
+        topView.addSubview(filterTxt)
+        topView.addSubview(textFilterTxt)
+        topView.addSubview(findBtn)
+        
+        filterTxt.leftAnchor.constraint(equalTo: topView.leftAnchor, constant: 5).isActive = true
+        filterTxt.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -5).isActive = true
+        filterTxt.widthAnchor.constraint(equalToConstant: 120).isActive = true
+        filterTxt.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        
+        textFilterTxt.leftAnchor.constraint(equalTo: filterTxt.rightAnchor, constant: 5).isActive = true
+        textFilterTxt.rightAnchor.constraint(equalTo: findBtn.leftAnchor, constant: -5).isActive = true
+        textFilterTxt.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -5).isActive = true
+        textFilterTxt.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        
+        findBtn.rightAnchor.constraint(equalTo: topView.rightAnchor, constant: -5).isActive = true
+        findBtn.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -5).isActive = true
+        findBtn.widthAnchor.constraint(equalToConstant: 45).isActive = true
+        findBtn.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        
         tabLayout.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
         tabLayout.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         tabLayout.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
@@ -173,7 +280,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         comicsTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         comicsTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         comicsTbl.bottomAnchor.constraint(equalTo: bottonView.topAnchor).isActive = true
-
+        
         charactersTbl.topAnchor.constraint(equalTo: tabLayout.bottomAnchor).isActive = true
         charactersTbl.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         charactersTbl.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
@@ -205,16 +312,33 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         counterLbl.rightAnchor.constraint(equalTo: addOffset.leftAnchor).isActive = true
         counterLbl.heightAnchor.constraint(equalToConstant: 50).isActive = true
         enabledButtons()
+        
+        view.addSubview(shadowView)
+        view.addSubview(filtersTbl)
+        
+        shadowView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+        shadowView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        shadowView.isHidden = true
+        
+        filtersTbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
+        filtersTbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        
+        tableTopConstraint = filtersTbl.topAnchor.constraint(equalTo: view.bottomAnchor)
+        tableHeightContraint = filtersTbl.heightAnchor.constraint(equalTo: textFilterTxt.heightAnchor)
+        NSLayoutConstraint.activate([
+            tableTopConstraint,
+            tableHeightContraint
+        ])
     }
     @objc
     func reduceOffset(sender: UIButton){
         enabledButtons()
         if collectionCellSelected == 0{
             comicsOffset -= 20
-            principalListPresenter.getComics(offset: String(comicsOffset))
+            principalListPresenter.getComics(offset: String(comicsOffset), filter: filterComicsSelected, textFilter: textFilterTxt.text ?? "")
         }else if collectionCellSelected == 1{
             characterOffset -= 20
-            principalListPresenter.getCharacters(offset: String(characterOffset))
+            principalListPresenter.getCharacters(offset: String(comicsOffset), filter: filterCharactersSelected, textFilter: textFilterTxt.text ?? "")
         }
         enabledButtons()
     }
@@ -224,10 +348,21 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         
         if collectionCellSelected == 0{
             comicsOffset += 20
-            principalListPresenter.getComics(offset: String(comicsOffset))
+            principalListPresenter.getComics(offset: String(comicsOffset), filter: filterComicsSelected, textFilter: textFilterTxt.text ?? "")
         }else if collectionCellSelected == 1{
             characterOffset += 20
-            principalListPresenter.getCharacters(offset: String(characterOffset))
+            principalListPresenter.getCharacters(offset: String(comicsOffset), filter: filterCharactersSelected, textFilter: textFilterTxt.text ?? "")
+        }
+        enabledButtons()
+    }
+    
+    @objc
+    func filterFind(sender: UIButton){
+        
+        if collectionCellSelected == 0{
+            principalListPresenter.getComics(offset: String(comicsOffset), filter: filterComicsSelected, textFilter: textFilterTxt.text ?? "")
+        }else if collectionCellSelected == 1{
+            principalListPresenter.getCharacters(offset: String(comicsOffset), filter: filterCharactersSelected, textFilter: textFilterTxt.text ?? "")
         }
         enabledButtons()
     }
@@ -268,6 +403,12 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             rows = comicData.count
         }else if tableView == charactersTbl{
             rows = characterData.count
+        }else if tableView == filtersTbl{
+            if collectionCellSelected == 0{
+                rows = filterComics.count
+            }else if collectionCellSelected == 1{
+                rows = filterCharacters.count
+            }
         }
         return rows
     }
@@ -276,6 +417,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         
         let cell: ListTableViewCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ListTableViewCell
         
+        cell.backgroundColor = .clear
         
         if tableView == comicsTbl{
             let comic: ComicStruct = comicData[indexPath.row] as ComicStruct
@@ -320,10 +462,25 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             cell.setResourceLbl(resourceLbl: character.resourceURI ?? "")
             
             cell.crateCharacterCell()
+        }else if tableView == filtersTbl{
+          
+            var filter: FilterStruct = FilterStruct()
+            
+            if collectionCellSelected == 0{
+                filter = filterComics[indexPath.row]
+            }else if collectionCellSelected == 1{
+                filter = filterCharacters[indexPath.row]
+            }
+            
+            cell.setTitleLbl(titleLbl: filter.description ?? "")
+            cell.setIDLbl(IDLbl: filter.filterID ?? "")
+            
+            cell.createOptionCell()
+            
+            cell.backgroundColor = .white
+            
+            return cell
         }
-        
-        cell.backgroundColor = .clear
-        
         return cell
     }
     
@@ -331,11 +488,26 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         let cell = tableView.cellForRow(at: indexPath) as! ListTableViewCell
         resourceURISelected = cell.getResourceLbl()
         if collectionCellSelected == 0{
-            resourceURISelected = cell.getResourceLbl()
-            self.performSegue(withIdentifier: "comicDetailSegue", sender: nil)
+            if tableView == comicsTbl{
+                resourceURISelected = cell.getResourceLbl()
+                self.performSegue(withIdentifier: "comicDetailSegue", sender: nil)
+            }else if tableView == filtersTbl{
+                filterTxt.text = cell.getTitleLbl()
+                filterComicsSelected = cell.getIDLbl()
+                filterComicsSelectedDescription = cell.getTitleLbl()
+                hideTbl()
+            }
         }else if collectionCellSelected == 1{
-            resourceURISelected = cell.getResourceLbl()
-            self.performSegue(withIdentifier: "characterDetailSegue", sender: nil)
+            if tableView == charactersTbl{
+                resourceURISelected = cell.getResourceLbl()
+                self.performSegue(withIdentifier: "characterDetailSegue", sender: nil)
+            }else if tableView == filtersTbl{
+                filterTxt.text = cell.getTitleLbl()
+                filterCharactersSelected = cell.getIDLbl()
+                filterCharactersSelectedDescription = cell.getTitleLbl()
+                hideTbl()
+            }
+            
         }
     }
     
@@ -346,12 +518,45 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             size = 210
         }else if tableView == charactersTbl{
             size = 180
+        }else if tableView == filtersTbl{
+            size = 40
         }
         return size
     }
     
+    func showTbl(){
+        var size:CGFloat = CGFloat(0)
+        
+        if collectionCellSelected == 0{
+            size = CGFloat(filterComics.count * 45)
+        }else if collectionCellSelected == 1{
+            size = CGFloat(filterCharacters.count * 45)
+        }
+        
+        if(size > (view.frame.size.height - 200)){
+            tableHeightContraint.constant = view.frame.size.height - 300
+            tableTopConstraint.constant = -(view.frame.size.height  - 140)
+        }else{
+            tableHeightContraint.constant = size - 60
+            tableTopConstraint.constant = -(view.frame.size.height/2)-(size/2)
+        }
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.shadowView.isHidden = false
+            self.view.superview?.layoutIfNeeded()
+        });
+    }
+    
+    func hideTbl(){
+        tableTopConstraint.constant = view.frame.size.height
+        UIView.animate(withDuration: 0.3, animations: {
+            self.shadowView.isHidden = true
+            self.view.superview?.layoutIfNeeded()
+        });
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
+        
         if (segue.identifier == "comicDetailSegue") {
             let vc = segue.destination as! ComicDetailViewController
             vc.resourceURI = resourceURISelected
@@ -381,22 +586,39 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         return collectionCellItem
     }
     
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        var response = true
+        
+        if textField.tag == 1{
+            shadowView.isHidden = false
+            showTbl()
+            response = false
+            textFilterTxt.endEditing(true)
+            hiddenGesture?.isEnabled = false
+        }else if textField.tag == 2{
+            hiddenGesture?.isEnabled = true
+        }
+        
+        return response
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionCellSelected = indexPath.row
         
         self.tabLayout.reloadData()
+        self.filtersTbl.reloadData()
         
-        if collectionCellSelected == 0{
-            comicsTbl.isHidden = false
-            charactersTbl.isHidden = true
-            
-        }else if collectionCellSelected == 1{
-            comicsTbl.isHidden = true
-            charactersTbl.isHidden = false
+        
+        if self.collectionCellSelected == 0{
+            self.comicsTbl.isHidden = false
+            self.charactersTbl.isHidden = true
+            filterTxt.text = filterComicsSelectedDescription
+        }else if self.collectionCellSelected == 1{
+            self.comicsTbl.isHidden = true
+            self.charactersTbl.isHidden = false
+            filterTxt.text = filterCharactersSelectedDescription
         }
         enabledButtons()
-
-        
     }
     
     

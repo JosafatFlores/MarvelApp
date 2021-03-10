@@ -10,7 +10,7 @@ class ComicConector: NSObject {
     
     let subpath = "/comics"
     
-    func getComics(offset: String, _ resultData: @escaping ResultComicData){
+    func getComics(offset: String, filter: String, textFilter: String, _ resultData: @escaping ResultComicData){
         
         var errorResponse: String = ""
         
@@ -22,7 +22,10 @@ class ComicConector: NSObject {
         apiPath += "&hash=\(Encryptor().encryptorMD5(ts: ts))"
         apiPath += "&offset=\(offset)"
         
-        print(apiPath)
+        if filter != ""{
+            apiPath += "&\(filter)=\(textFilter)"
+        }
+        
         var request = URLRequest(url: URL(string: apiPath)!)
         request.httpMethod = "GET"
         

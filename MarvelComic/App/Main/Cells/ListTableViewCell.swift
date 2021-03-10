@@ -323,4 +323,24 @@ class ListTableViewCell: UITableViewCell {
         titleLbl.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 5).isActive = true
         titleLbl.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5).isActive = true
     }
+
+    
+    
+    func createOptionCell(){
+        self.addSubview(titleLbl)
+        self.addSubview(IDLbl)
+        
+        titleLbl.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        titleLbl.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
+        titleLbl.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
+        titleLbl.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+        titleLbl.textColor = .black
+        
+        IDLbl.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        IDLbl.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
+        IDLbl.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
+        IDLbl.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+        
+        IDLbl.isHidden = true
+    }
 }

@@ -10,7 +10,7 @@ class CharacterConector: NSObject {
     
     let subpath = "/characters"
     
-    func getCharacters(offset: String, _ resultData: @escaping ResultCharacterData){
+    func getCharacters(offset: String, filter: String, textFilter: String, _ resultData: @escaping ResultCharacterData){
         
         var errorResponse: String = ""
         
@@ -22,7 +22,10 @@ class CharacterConector: NSObject {
         apiPath += "&hash=\(Encryptor().encryptorMD5(ts: ts))"
         apiPath += "&offset=\(offset)"
         
-        print(apiPath)
+        if filter != ""{
+            apiPath += "&\(filter)=\(textFilter)"
+        }
+        
         var request = URLRequest(url: URL(string: apiPath)!)
         request.httpMethod = "GET"
         

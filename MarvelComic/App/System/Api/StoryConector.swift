@@ -17,7 +17,6 @@ class StoryConector: NSObject {
         apiPath += "&ts=\(ts)"
         apiPath += "&hash=\(Encryptor().encryptorMD5(ts: ts))"
         
-        print(apiPath)
         var request = URLRequest(url: URL(string: apiPath)!)
         request.httpMethod = "GET"
         
