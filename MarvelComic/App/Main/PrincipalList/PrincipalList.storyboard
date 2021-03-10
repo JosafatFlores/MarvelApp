@@ -21,6 +21,7 @@
                     <navigationItem key="navigationItem" id="LeO-de-PLf"/>
                     <connections>
                         <segue destination="PA8-zg-690" kind="presentation" identifier="comicDetailSegue" modalPresentationStyle="fullScreen" id="t74-iC-fae"/>
+                        <segue destination="jDy-aK-Twl" kind="presentation" identifier="characterDetailSegue" modalPresentationStyle="fullScreen" id="mWA-Wk-wT8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dMl-fR-Xkc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -34,6 +35,14 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Pef-5A-c60" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2294" y="-8"/>
+        </scene>
+        <!--CharacterDetail-->
+        <scene sceneID="6jI-dO-7Yy">
+            <objects>
+                <viewControllerPlaceholder storyboardName="CharacterDetail" id="jDy-aK-Twl" sceneMemberID="viewController"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dCy-25-k3k" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2303" y="189"/>
         </scene>
     </scenes>
     <resources>

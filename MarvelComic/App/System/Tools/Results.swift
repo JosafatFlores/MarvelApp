@@ -9,3 +9,4 @@ import Foundation
 
 typealias ResultComicData = (ResponseDataComicStruct?, String) -> Void
 typealias ResultCharacterData = (ResponseDataCharacterStruct?, String) -> Void
+typealias ResultStoryData = (ResponseDataStoryStruct?, String) -> Void

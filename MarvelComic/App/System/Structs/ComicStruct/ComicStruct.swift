@@ -17,5 +17,6 @@ struct ComicStruct: Codable {
     var dates: [DateStruct]?
     var thumbnail: ImageStruct?
     var resourceURI: String?
-    var characters: CharactersStruct?
+    var characters: DirectoryStruct?
+    var stories: DirectoryStruct?
 }

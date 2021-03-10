@@ -314,4 +314,13 @@ class ListTableViewCell: UITableViewCell {
         IDLbl.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5).isActive = true
         IDLbl.heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
+    
+    func createStoryCell(){
+        self.addSubview(titleLbl)
+        
+        titleLbl.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
+        titleLbl.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 5).isActive = true
+        titleLbl.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 5).isActive = true
+        titleLbl.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5).isActive = true
+    }
 }

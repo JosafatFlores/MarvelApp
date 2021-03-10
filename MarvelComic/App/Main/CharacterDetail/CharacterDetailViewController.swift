@@ -1,36 +1,37 @@
 //
-//  ComicDetailViewController.swift
+//  CharacterDetailViewController.swift
 //  MarvelComic
 //
-//  Created by Test on 08/03/21.
+//  Created by Test on 09/03/21.
 //
 
 import UIKit
 
-class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource {
+class CharacterDetailViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource {
     
-    private var comicDetailPresenter: ComicDetailPresenter = ComicDetailPresenter(comicServ: ComicConector(), characterServ: CharacterConector(), storyServ: StoryConector())
+    private var characterDetailPresenter: CharacterDetailPresenter = CharacterDetailPresenter(comicServ: ComicConector(), characterServ: CharacterConector(), storyServ: StoryConector())
     
     let nf = "Not found"
     
     var resourceURI: String = ""
     
-    var comicData: ComicStruct = ComicStruct()
+    var characterData: CharacterStruct = CharacterStruct()
     
-    var charactersData: [CharacterStruct] = []
+    var comicsData: [ComicStruct] = []
     var storiesData: [StoryStruct] = []
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         createView()
         
-        comicDetailPresenter.attachView(view: self)
-        comicDetailPresenter.getComicDetail(resourceURI: resourceURI)
+        characterDetailPresenter.attachView(view: self)
+        characterDetailPresenter.getChatracterDetail(resourceURI: resourceURI)
         
-        charactersCll.delegate = self
-        charactersCll.dataSource = self
-        charactersCll.register(GaleryItemCollectionViewCell.self, forCellWithReuseIdentifier: "collectionCell")
+        comicsCll.delegate = self
+        comicsCll.dataSource = self
+        comicsCll.register(GaleryItemCollectionViewCell.self, forCellWithReuseIdentifier: "collectionCell")
         
         storiesTbl.delegate = self
         storiesTbl.dataSource = self
@@ -40,47 +41,27 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         
     }
     
-    func setData(data: ResponseDataComicStruct){
-        comicData = data.results[0]
+    func setData(data: ResponseDataCharacterStruct){
+        characterData = data.results[0]
         
-        comicDetailPresenter.getCharacters(resourceURI: comicData.characters?.collectionURI ?? "")
-        comicDetailPresenter.getStories(resourceURI: comicData.stories?.collectionURI ?? "")
+        characterDetailPresenter.getComics(resourceURI: characterData.comics?.collectionURI ?? "")
+        characterDetailPresenter.getStories(resourceURI: characterData.stories?.collectionURI ?? "")
         DispatchQueue.main.async {
-            self.titleLbl.text = self.comicData.title
-            self.IDLbl.text! += String(self.comicData.id ?? 0)
-            self.issueNumberLbl.text! +=  String(self.comicData.issueNumber ?? 0)
-            self.formatLbl.text! += self.comicData.format ?? self.nf
-            self.modifiedLbl.text! += Formatter().dateReduceFormatter(date: self.comicData.modified!)
-            self.descriptionLbl.text = self.comicData.description ?? self.nf
+            self.titleLbl.text = self.characterData.name
+            self.IDLbl.text! += String(self.characterData.id ?? 0)
+            self.modifiedLbl.text! += Formatter().dateReduceFormatter(date: self.characterData.modified!)
+            self.descriptionLbl.text = self.characterData.description ?? self.nf
             
-            let fullPathImage = "\(self.comicData.thumbnail?.path ?? "").\(self.comicData.thumbnail?.extension ?? "")"
+            let fullPathImage = "\(self.characterData.thumbnail?.path ?? "").\(self.characterData.thumbnail?.extension ?? "")"
             
             self.coverImg.load(urlString: fullPathImage)
-            for price in self.comicData.prices ?? []{
-                let p: PriceStruct = price
-                
-                if p.type == "printPrice"{
-                    self.printPriceLbl.text! += "$\(String(p.price ?? 0))"
-                }
-                
-            }
-            
-            for date in self.comicData.dates ?? []{
-                let d: DateStruct = date
-                if d.type == "focDate"{
-                    self.focDate.text! += Formatter().dateReduceFormatter(date: d.date!)
-                }
-                if d.type == "onsaleDate"{
-                    self.onSaleDate.text! += Formatter().dateFormatter(date: d.date!)
-                }
-            }
         }
     }
     
-    func setCharactersData(data: ResponseDataCharacterStruct){
-        charactersData = data.results
+    func setComicsData(data: ResponseDataComicStruct){
+        comicsData = data.results
         DispatchQueue.main.async {
-            self.charactersCll.reloadData()
+            self.comicsCll.reloadData()
         }
     }
     
@@ -136,34 +117,12 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         return label
     }()
     
-    private let issueNumberLbl: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.text = "Issue Number: "
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
-    private let formatLbl: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.text = "Format: "
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
     private let modifiedLbl: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.text = "Modified: "
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let printPriceLbl: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.text = "Print Price: "
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -176,22 +135,6 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         return label
     }()
     
-    private let onSaleDate: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.text = "On sale date: "
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let focDate: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.text = "FOC Date: "
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private let coverImg: UIImageView = {
         let image = UIImageView()
         image.image = UIImage(named: "loadingImage")
@@ -200,16 +143,16 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         return image
     }()
     
-    private let characterLbl: UILabel = {
+    private let comicsLbl: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.textAlignment = .center
-        label.text = "Characters"
+        label.text = "Comics"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private let charactersCll: UICollectionView = {
+    private let comicsCll: UICollectionView = {
         let layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
         layout.scrollDirection = UICollectionView.ScrollDirection.horizontal
         layout.itemSize = .init(width: 150, height: 200)
@@ -270,16 +213,11 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         
         scrollView.addSubview(titleLbl)
         scrollView.addSubview(IDLbl)
-        scrollView.addSubview(issueNumberLbl)
-        scrollView.addSubview(formatLbl)
         scrollView.addSubview(modifiedLbl)
-        scrollView.addSubview(printPriceLbl)
         scrollView.addSubview(descriptionLbl)
-        scrollView.addSubview(onSaleDate)
-        scrollView.addSubview(focDate)
         scrollView.addSubview(coverImg)
-        scrollView.addSubview(characterLbl)
-        scrollView.addSubview(charactersCll)
+        scrollView.addSubview(comicsLbl)
+        scrollView.addSubview(comicsCll)
         scrollView.addSubview(storiesLbl)
         scrollView.addSubview(storiesTbl)
         
@@ -299,52 +237,27 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         IDLbl.widthAnchor.constraint(equalToConstant: width/2).isActive = true
         IDLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
         
-        issueNumberLbl.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: topMargin).isActive = true
-        issueNumberLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        issueNumberLbl.widthAnchor.constraint(equalToConstant: width/2).isActive = true
-        issueNumberLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
-        
-        formatLbl.topAnchor.constraint(equalTo: issueNumberLbl.bottomAnchor, constant: topMargin).isActive = true
-        formatLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
-        formatLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        formatLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
-        
-        modifiedLbl.topAnchor.constraint(equalTo: formatLbl.bottomAnchor, constant: topMargin).isActive = true
+        modifiedLbl.topAnchor.constraint(equalTo: IDLbl.bottomAnchor, constant: topMargin).isActive = true
         modifiedLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
         modifiedLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
         modifiedLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
         
-        printPriceLbl.topAnchor.constraint(equalTo: modifiedLbl.bottomAnchor, constant: topMargin).isActive = true
-        printPriceLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
-        printPriceLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        printPriceLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
-        
-        descriptionLbl.topAnchor.constraint(equalTo: printPriceLbl.bottomAnchor, constant: topMargin).isActive = true
+        descriptionLbl.topAnchor.constraint(equalTo: modifiedLbl.bottomAnchor, constant: topMargin).isActive = true
         descriptionLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
         descriptionLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
         descriptionLbl.heightAnchor.constraint(equalToConstant: heightLbl*10).isActive = true
         
-        onSaleDate.topAnchor.constraint(equalTo: descriptionLbl.bottomAnchor, constant: topMargin).isActive = true
-        onSaleDate.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
-        onSaleDate.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        onSaleDate.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
+        comicsLbl.topAnchor.constraint(equalTo: descriptionLbl.bottomAnchor, constant: topMargin*4).isActive = true
+        comicsLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
+        comicsLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
+        comicsLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
         
-        focDate.topAnchor.constraint(equalTo: onSaleDate.bottomAnchor, constant: topMargin).isActive = true
-        focDate.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
-        focDate.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        focDate.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
+        comicsCll.topAnchor.constraint(equalTo: comicsLbl.bottomAnchor, constant: topMargin).isActive = true
+        comicsCll.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
+        comicsCll.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
+        comicsCll.heightAnchor.constraint(equalToConstant: 200).isActive = true
         
-        characterLbl.topAnchor.constraint(equalTo: focDate.bottomAnchor, constant: topMargin*4).isActive = true
-        characterLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
-        characterLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        characterLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
-        
-        charactersCll.topAnchor.constraint(equalTo: characterLbl.bottomAnchor, constant: topMargin).isActive = true
-        charactersCll.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
-        charactersCll.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
-        charactersCll.heightAnchor.constraint(equalToConstant: 200).isActive = true
-        
-        storiesLbl.topAnchor.constraint(equalTo: charactersCll.bottomAnchor, constant: topMargin*4).isActive = true
+        storiesLbl.topAnchor.constraint(equalTo: comicsCll.bottomAnchor, constant: topMargin*4).isActive = true
         storiesLbl.leftAnchor.constraint(equalTo: view.leftAnchor, constant: lateralMargin).isActive = true
         storiesLbl.rightAnchor.constraint(equalTo: view.rightAnchor, constant: lateralMargin).isActive = true
         storiesLbl.heightAnchor.constraint(equalToConstant: heightLbl).isActive = true
@@ -355,12 +268,12 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
         storiesTbl.heightAnchor.constraint(equalToConstant: 200).isActive = true
         
         
-        scrollView.contentSize = CGSize(width: self.view.frame.width, height: 1150)
+        scrollView.contentSize = CGSize(width: self.view.frame.width, height: 1100)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         var rows = 0
-            rows = charactersData.count
+        rows = comicsData.count
         
         return rows
     }
@@ -368,9 +281,9 @@ class ComicDetailViewController: UIViewController, UICollectionViewDelegate, UIC
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let collectionCellItem: GaleryItemCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as! GaleryItemCollectionViewCell
         
-            collectionCellItem.setThumbnailImg(urlString: "\(charactersData[indexPath.row].thumbnail?.path ?? "").\(charactersData[indexPath.row].thumbnail?.extension ?? "")")
-            collectionCellItem.setTitleLbl(titleLbl: charactersData[indexPath.row].name ?? nf)
-            collectionCellItem.createCell()
+        collectionCellItem.setThumbnailImg(urlString: "\(comicsData[indexPath.row].thumbnail?.path ?? "").\(comicsData[indexPath.row].thumbnail?.extension ?? "")")
+        collectionCellItem.setTitleLbl(titleLbl: comicsData[indexPath.row].title ?? nf)
+        collectionCellItem.createCell()
         
         
         return collectionCellItem

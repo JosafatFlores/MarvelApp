@@ -11,10 +11,12 @@ class ComicDetailPresenter: NSObject {
     
     private let comicService: ComicConector?
     private let characterService: CharacterConector
+    private let storyService: StoryConector?
     
-    init(comicServ: ComicConector, characterServ: CharacterConector){
+    init(comicServ: ComicConector, characterServ: CharacterConector, storyServ: StoryConector){
         comicService = comicServ
         characterService = characterServ
+        storyService = storyServ
     }
     
     func attachView(view: ComicDetailViewController){
@@ -39,6 +41,17 @@ class ComicDetailPresenter: NSObject {
         characterService.getCharacterDetail(resourceURI: resourceURI){ (data, message)  in
             if message == "200"{
                 self.comicDetailView?.setCharactersData(data: data!)
+            }else{
+                self.comicDetailView?.error(title: "Comics", message: "Can't connect with Stark tower \nCode: \(message)")
+            }
+        }
+    }
+    
+    func getStories(resourceURI: String){
+        
+        storyService?.getStoryDetail(resourceURI: resourceURI){ (data, message)  in
+            if message == "200"{
+                self.comicDetailView?.setStoriesData(data: data!)
             }else{
                 self.comicDetailView?.error(title: "Comics", message: "Can't connect with Stark tower \nCode: \(message)")
             }

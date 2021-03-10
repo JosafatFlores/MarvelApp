@@ -316,7 +316,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             cell.setStoriesLbl(storiesLbl: String((character.stories?.returned) ?? 0))
             cell.setModifiedLbl(modifiedLbl: character.modified ?? nf)
             
-            cell.setIDLbl(IDLbl: String(character.id))
+            cell.setIDLbl(IDLbl: String(character.id ?? 0))
             cell.setResourceLbl(resourceLbl: character.resourceURI ?? "")
             
             cell.crateCharacterCell()
@@ -334,7 +334,8 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
             resourceURISelected = cell.getResourceLbl()
             self.performSegue(withIdentifier: "comicDetailSegue", sender: nil)
         }else if collectionCellSelected == 1{
-            
+            resourceURISelected = cell.getResourceLbl()
+            self.performSegue(withIdentifier: "characterDetailSegue", sender: nil)
         }
     }
     
@@ -353,6 +354,9 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
 
         if (segue.identifier == "comicDetailSegue") {
             let vc = segue.destination as! ComicDetailViewController
+            vc.resourceURI = resourceURISelected
+        }else if (segue.identifier == "characterDetailSegue") {
+            let vc = segue.destination as! CharacterDetailViewController
             vc.resourceURI = resourceURISelected
         }
     }
