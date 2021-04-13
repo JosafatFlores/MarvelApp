@@ -49,6 +49,8 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         filterComics = Filter().filterComic()
         filterCharacters = Filter().filterCharacter()
         
+        self.view.backgroundColor = .black
+        
         self.navigationController?.navigationBar.barTintColor = UIColor(named: "red_226_54_54")
         
         tabLayout.delegate = self
@@ -112,8 +114,17 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
     private let topView:UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "red_226_54_54")
+        view.layer.cornerRadius = 10
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+    
+    private let marvelLogo: UIImageView = {
+       let image = UIImageView()
+        image.image = UIImage(named: "marvelLogo")
+        image.contentMode = .scaleAspectFit
+        image.translatesAutoresizingMaskIntoConstraints = false
+        return image
     }()
     
     private let filterTxt:UITextField = {
@@ -250,28 +261,34 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         topView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         topView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         topView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        topView.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading).isActive = true
+        topView.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading * 3.5).isActive = true
         
+        topView.addSubview(marvelLogo)
         topView.addSubview(filterTxt)
         topView.addSubview(textFilterTxt)
         topView.addSubview(findBtn)
         
+        marvelLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
+        marvelLogo.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        marvelLogo.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        marvelLogo.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading).isActive = true
+        
         filterTxt.leftAnchor.constraint(equalTo: topView.leftAnchor, constant: 5).isActive = true
-        filterTxt.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -5).isActive = true
+        filterTxt.topAnchor.constraint(equalTo: marvelLogo.bottomAnchor, constant: 3).isActive = true
         filterTxt.widthAnchor.constraint(equalToConstant: 120).isActive = true
         filterTxt.heightAnchor.constraint(equalToConstant: 45).isActive = true
         
         textFilterTxt.leftAnchor.constraint(equalTo: filterTxt.rightAnchor, constant: 5).isActive = true
         textFilterTxt.rightAnchor.constraint(equalTo: findBtn.leftAnchor, constant: -5).isActive = true
-        textFilterTxt.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -5).isActive = true
+        textFilterTxt.topAnchor.constraint(equalTo: marvelLogo.bottomAnchor, constant: 3).isActive = true
         textFilterTxt.heightAnchor.constraint(equalToConstant: 45).isActive = true
         
         findBtn.rightAnchor.constraint(equalTo: topView.rightAnchor, constant: -5).isActive = true
-        findBtn.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -5).isActive = true
+        findBtn.topAnchor.constraint(equalTo: marvelLogo.bottomAnchor, constant: 3).isActive = true
         findBtn.widthAnchor.constraint(equalToConstant: 45).isActive = true
         findBtn.heightAnchor.constraint(equalToConstant: 45).isActive = true
         
-        tabLayout.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
+        tabLayout.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
         tabLayout.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         tabLayout.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         tabLayout.heightAnchor.constraint(equalToConstant:50).isActive = true
