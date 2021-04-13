@@ -44,7 +44,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if #available(iOS 13.0, *) {
             let window = UIApplication.shared.windows[0]
-            Sesion.instance.topPading = window.safeAreaInsets.top
+            Sesion.instance.topPading = window.safeAreaInsets.top + Sesion.instance.navigationBarSize
             Sesion.instance.bottomPadding = window.safeAreaInsets.bottom
         }
         
