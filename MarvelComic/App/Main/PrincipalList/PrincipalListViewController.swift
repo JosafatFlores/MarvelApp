@@ -271,7 +271,7 @@ class PrincipalListViewController: UIViewController, UICollectionViewDelegate, U
         marvelLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: Sesion.instance.topPading).isActive = true
         marvelLogo.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         marvelLogo.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        marvelLogo.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading).isActive = true
+        marvelLogo.heightAnchor.constraint(equalToConstant: Sesion.instance.topPading * 1.2).isActive = true
         
         filterTxt.leftAnchor.constraint(equalTo: topView.leftAnchor, constant: 5).isActive = true
         filterTxt.topAnchor.constraint(equalTo: marvelLogo.bottomAnchor, constant: 3).isActive = true
